@@ -62,9 +62,6 @@ int main(int argc, char **argv) {
     std::cout << "Client connected\n";
 
     handle_client(client_fd); // Call the function to handle the request
-    
-    close(client_fd);
-    std::cout << "Client disconnected\n";
 
   }
 

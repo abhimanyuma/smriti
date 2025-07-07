@@ -8,13 +8,22 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 
-
 int handle_client(int client_fd) {
 
-    // For now we respond to all requests with a simple PONG response
-    // We cannot currently handle the full redis-cli
+    while (true) {
+        char input_buffer[1024];
+        ssize_t bytes_received = recv(client_fd, input_buffer, sizeof(input_buffer) - 1, 0);
+        if (bytes_received < 0) {
+            std::cerr << "Failed to receive data from client\n";
+            return -1; // Indicate failure
+        }
+        if (bytes_received == 0) {
+            std::cout << "Client disconnected\n";
+            return 0; // Client disconnected
+        }
 
-    send(client_fd, "+PONG\r\n", 7, 0); // Send a simple PONG response
-    std::cout << "Handled client request, sent PONG response\n";
-    return 1; // Successfully handled request
+        // Here you can process the request and send a response back to the client
+        const char *response = "+PONG\r\n"; // Example response for a PING command
+        send(client_fd, response, strlen(response), 0);
+    }
 }
