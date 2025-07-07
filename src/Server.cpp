@@ -64,6 +64,8 @@ int main(int argc, char **argv) {
 
     handle_client(client_fd); // Call the function to handle the request
 
+    std::cout << "Client disconnected\n";
+    close(client_fd); // Close the client socket after handling
   }
 
   close(server_fd);

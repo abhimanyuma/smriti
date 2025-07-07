@@ -18,7 +18,7 @@ int handle_client(int client_fd) {
             return -1; // Indicate failure
         }
         if (bytes_received == 0) {
-            std::cout << "Client disconnected\n";
+            std::cout << "Client " << client_fd << " disconnected\n";
             return 0; // Client disconnected
         }
 
