@@ -44,5 +44,6 @@
         "unordered_map": "cpp",
         "variant": "cpp",
         "vector": "cpp"
-    }
+    },
+    "C_Cpp.clang_format_fallbackStyle": "Google"
 }
