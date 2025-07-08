@@ -1,6 +1,8 @@
 {
   "dependencies": [
     "asio",
+    "boost-asio",
+    "boost-system",
     "pthreads"
   ]
 }
