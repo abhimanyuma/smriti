@@ -15,18 +15,17 @@ Server::Server(boost::asio::io_context &io_context, unsigned short port)
     : d_acceptor{io_context, tcp::endpoint(tcp::v4(), port)}, d_port{port} {}
 
 void Server::accept() {
-  d_acceptor.async_accept(
-      [this](boost::system::error_code ec, tcp::socket socket) {
+    d_acceptor.async_accept([this](boost::system::error_code ec, tcp::socket socket) {
         if (!ec) {
-          std::cout << "New connection accepted on port " << d_port << "\n";
-          std::make_shared<Session>(std::move(socket))->start();
+            std::cout << "New connection accepted on port " << d_port << "\n";
+            std::make_shared<Session>(std::move(socket))->start();
         } else {
-          std::cerr << "Accept error: " << ec.message() << "\n";
+            std::cerr << "Accept error: " << ec.message() << "\n";
         }
         // Continue accepting new connections
         accept();
-      }
+    }
 
-  );
+    );
 }
-}  // namespace Smriti
+} // namespace Smriti
