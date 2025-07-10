@@ -3,6 +3,7 @@
     "asio",
     "boost-asio",
     "boost-system",
-    "pthreads"
+    "pthreads",
+    "gtest"
   ]
 }
