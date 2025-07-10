@@ -1,4 +1,5 @@
 #include "parser.h"
+#include "convertors.h"
 
 #include <string_view>
 #include <optional>
@@ -36,32 +37,30 @@ std::optional<RespValue> parse_error(const char* data, size_t length) {
     return RespValue::error(*line);
 }
 
-// std::optional<RespValue> parse_integer(const char* data, size_t length) {
-//     auto line = read_line(data, length);
-//     if (!line) return std::nullopt;
+std::optional<RespValue> parse_integer(char*& data, size_t length) {
 
-//     int64_t value;
-//     auto result = std::from_chars(line->data(), line->data() + line->size(), value);
-//     if (result.ec != std::errc{}) {
-//         return std::nullopt;
-//     }
+    auto value_opt = Smriti::parse_int(data, length);
+    if (!value_opt) return std::nullopt;
 
-//     return RespValue::integer(value);
-// }
+    int64_t value = *value_opt;
+
+    return RespValue::integer(value);
+}
 
 std::optional<RespValue> parse(const char* data, size_t length) {
     if (length == 0) {
         return std::nullopt;
     }
 
-    char type = *data++;
+    char* current = const_cast<char*>(data);
+
+    char type = *current++;
     --length;
 
     switch (type) {
-        case '+': return parse_simple_string(data, length);
-        case '-': return parse_error(data, length);
-        // Unimplemented RESP types
-        // case ':': return parse_integer(data, length);
+        case '+': return parse_simple_string(current, length);
+        case '-': return parse_error(current, length);
+        case ':': return parse_integer(current, length);
         // case '$': return parse_bulk_string(data, length);
         // case '*': return parse_array(data, length);
         default:

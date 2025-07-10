@@ -1,1 +1,0 @@
-int parse_int(const char* input);
