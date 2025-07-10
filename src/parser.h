@@ -3,9 +3,11 @@
 
 #include "resp_value.h"
 
+#include <optional>
+
 namespace Smriti {
 
-RespValue parse(const char* data, size_t length);
+std::optional<RespValue>  parse(const char* data, size_t length);
 
 } // namespace Smriti
 

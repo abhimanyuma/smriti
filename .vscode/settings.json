@@ -89,7 +89,8 @@
         "cfenv": "cpp",
         "cinttypes": "cpp",
         "typeindex": "cpp",
-        "valarray": "cpp"
+        "valarray": "cpp",
+        "unordered_set": "cpp"
     },
     "editor.formatOnSave": false,
 }
