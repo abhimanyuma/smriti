@@ -47,6 +47,25 @@ std::optional<RespValue> parse_integer(char*& data, size_t length) {
     return RespValue::integer(value);
 }
 
+std::optional<RespValue> parse_bulk_string(char*& data, size_t length) {
+
+    auto optional_line_length = parse_int(data, length);
+    if (!optional_line_length) return std::nullopt;
+
+    int64_t line_length = *optional_line_length;
+
+    data += 2; // Skip the \r\n after the length
+
+    if (line_length == -1) {
+        return RespValue::null();
+    }
+
+    std::string_view str(data, data + line_length);
+    data = data + line_length + 2; // Skip the \r\n after the bulk string
+
+    return RespValue::bulk_string(str);
+}
+
 std::optional<RespValue> parse(const char* data, size_t length) {
     if (length == 0) {
         return std::nullopt;
@@ -61,7 +80,7 @@ std::optional<RespValue> parse(const char* data, size_t length) {
         case '+': return parse_simple_string(current, length);
         case '-': return parse_error(current, length);
         case ':': return parse_integer(current, length);
-        // case '$': return parse_bulk_string(data, length);
+        case '$': return parse_bulk_string(current, length);
         // case '*': return parse_array(data, length);
         default:
             return std::nullopt;

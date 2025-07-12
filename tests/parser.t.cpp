@@ -77,4 +77,24 @@ TEST(ParserTest, ImplicitPositiveInteger) {
     EXPECT_EQ(result->as_integer(), 34);
 }
 
+TEST(ParserTest, ZeroBulkString) {
+    const char* data = "$0\r\n\r\n";
+    size_t length = 6; // Length of "$0\r\n\r\n"
+    auto result = parse(data, length);
+
+    EXPECT_TRUE(result.has_value());
+    EXPECT_EQ(result->type(), RespTypeEnum::BulkString);
+    EXPECT_EQ(result->as_string(), "");
+}
+
+
+TEST(ParserTest, NullBulkString) {
+    const char* data = "$-1\r\n";
+    size_t length = 5; // Length of "$-1\r\n"
+    auto result = parse(data, length);
+
+    EXPECT_TRUE(result.has_value());
+    EXPECT_EQ(result->type(), RespTypeEnum::Null);
+}
+
 } // namespace Smriti
