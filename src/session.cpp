@@ -22,7 +22,8 @@ void Session::read() {
             if (!ec) {
                 // Process the data received
                 std::cout << "Received data: " << std::string(d_data, length) << "\n";
-                auto response = parse(d_data, length);
+                char* data = const_cast<char*>(d_data);
+                auto response = parse(data, length);
                 write();
             } else {
                 std::cerr << "Read error: " << ec.message() << "\n";

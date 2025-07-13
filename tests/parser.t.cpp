@@ -6,18 +6,20 @@
 namespace Smriti {
 
 TEST(ParserTest, UnimplementedType) {
-    const char* data = "*0\r\n";
+    const char* orig_data = "%0\r\n";
     size_t length = 4; // Length of "*0\r\n"
 
+    char* data = const_cast<char*>(orig_data);
     auto result = parse(data, length);
 
     EXPECT_FALSE(result.has_value());
 }
 
 TEST(ParserTest, SimpleString) {
-    const char* data = "+OK\r\n";
+    const char* orig_data = "+OK\r\n";
     size_t length = 5; // Length of "*0\r\n"
 
+    char* data = const_cast<char*>(orig_data);
     auto result = parse(data, length);
 
     EXPECT_TRUE(result.has_value());
@@ -26,18 +28,20 @@ TEST(ParserTest, SimpleString) {
 }
 
 TEST(ParserTest, SimpleStringWrongLength) {
-    const char* data = "+OK\r\n";
+    const char* orig_data = "+OK\r\n";
     size_t length = 3; // Length of "*0\r\n"
 
+    char* data = const_cast<char*>(orig_data);
     auto result = parse(data, length);
 
     EXPECT_FALSE(result.has_value());
 }
 
 TEST(ParserTest, ErrorString) {
-    const char* data = "-ERR unknown command 'asdf'\r\n";
+    const char* orig_data = "-ERR unknown command 'asdf'\r\n";
     size_t length = 29; // Length of "-ERR unknown command 'asdf'\r\n"
 
+    char* data = const_cast<char*>(orig_data);
     auto result = parse(data, length);
 
     EXPECT_TRUE(result.has_value());
@@ -46,8 +50,10 @@ TEST(ParserTest, ErrorString) {
 }
 
 TEST(ParserTest, PostiveInteger) {
-    const char* data = ":+34\r\n";
+    const char* orig_data = ":+34\r\n";
     size_t length = 6; // Length of ":+34\r\n"
+
+    char* data = const_cast<char*>(orig_data);
     auto result = parse(data, length);
 
     EXPECT_TRUE(result.has_value());
@@ -56,8 +62,10 @@ TEST(ParserTest, PostiveInteger) {
 }
 
 TEST(ParserTest, WrongLengthPostiveInteger) {
-    const char* data = ":+3423231121232\r\n";
+    const char* orig_data = ":+3423231121232\r\n";
     size_t length = 5; // Length of ":+34\r\n"
+
+    char* data = const_cast<char*>(orig_data);
     auto result = parse(data, length);
 
     EXPECT_TRUE(result.has_value());
@@ -67,8 +75,10 @@ TEST(ParserTest, WrongLengthPostiveInteger) {
 }
 
 TEST(ParserTest, NegativeInteger) {
-    const char* data = ":-34\r\n";
+    const char* orig_data = ":-34\r\n";
     size_t length = 6; // Length of ":-34\r\n"
+
+    char* data = const_cast<char*>(orig_data);
     auto result = parse(data, length);
 
     EXPECT_TRUE(result.has_value());
@@ -77,8 +87,10 @@ TEST(ParserTest, NegativeInteger) {
 }
 
 TEST(ParserTest, ZeroInteger) {
-    const char* data = ":0\r\n";
+    const char* orig_data = ":0\r\n";
     size_t length = 4; // Length of ":0\r\n"
+
+    char* data = const_cast<char*>(orig_data);
     auto result = parse(data, length);
 
     EXPECT_TRUE(result.has_value());
@@ -87,8 +99,10 @@ TEST(ParserTest, ZeroInteger) {
 }
 
 TEST(ParserTest, ImplicitPositiveInteger) {
-    const char* data = ":34\r\n";
+    const char* orig_data = ":34\r\n";
     size_t length = 5; // Length of ":34\r\n"
+
+    char* data = const_cast<char*>(orig_data);
     auto result = parse(data, length);
 
     EXPECT_TRUE(result.has_value());
@@ -97,8 +111,10 @@ TEST(ParserTest, ImplicitPositiveInteger) {
 }
 
 TEST(ParserTest, ZeroBulkString) {
-    const char* data = "$0\r\n\r\n";
+    const char* orig_data = "$0\r\n\r\n";
     size_t length = 6; // Length of "$0\r\n\r\n"
+
+    char* data = const_cast<char*>(orig_data);
     auto result = parse(data, length);
 
     EXPECT_TRUE(result.has_value());
@@ -108,8 +124,10 @@ TEST(ParserTest, ZeroBulkString) {
 
 
 TEST(ParserTest, NullBulkString) {
-    const char* data = "$-1\r\n";
+    const char* orig_data = "$-1\r\n";
     size_t length = 5; // Length of "$-1\r\n"
+
+    char* data = const_cast<char*>(orig_data);
     auto result = parse(data, length);
 
     EXPECT_TRUE(result.has_value());
@@ -117,8 +135,10 @@ TEST(ParserTest, NullBulkString) {
 }
 
 TEST(ParserTest, CorrectString) {
-    const char* data = "$20\r\nabcdefghijklmnopqrst\r\n";
+    const char* orig_data = "$20\r\nabcdefghijklmnopqrst\r\n";
     size_t length = 27; // Length of "$20\r\nabcdefghijklmnopqrst\r\n"
+
+    char* data = const_cast<char*>(orig_data);
     auto result = parse(data, length);
 
     EXPECT_TRUE(result.has_value());
@@ -129,8 +149,10 @@ TEST(ParserTest, CorrectString) {
 }
 
 TEST(ParserTest, MemoryIncorrectString) {
-    const char* data = "$25\r\nabcdefghijklmnopqrst\r\n";
+    const char* orig_data = "$25\r\nabcdefghijklmnopqrst\r\n";
     size_t length = 27; // Length of "$20\r\nabcdefghijklmnopqrst\r\n"
+
+    char* data = const_cast<char*>(orig_data);
     auto result = parse(data, length);
 
     EXPECT_FALSE(result.has_value());

@@ -7,7 +7,7 @@
 
 namespace Smriti {
 
-std::optional<RespValue>  parse(const char* data, size_t length);
+std::optional<RespValue>  parse(char*& data, size_t length);
 
 } // namespace Smriti
 
