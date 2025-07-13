@@ -158,4 +158,56 @@ TEST(ParserTest, MemoryIncorrectString) {
     EXPECT_FALSE(result.has_value());
 }
 
+TEST(ParserTest, NullArray) {
+    const char* orig_data = "*-1\r\n";
+    size_t length = 5; // Length of "*-1\r\n"
+
+    char* data = const_cast<char*>(orig_data);
+    auto result = parse(data, length);
+
+    EXPECT_TRUE(result.has_value());
+    EXPECT_EQ(result->type(), RespTypeEnum::Null);
+}
+
+
+TEST(ParserTest, SingleElementArray) {
+    const char* orig_data = "*1\r\n$5\r\nhello\r\n";
+    size_t length = 20; // Length of "*1\r\n$5\r\nhello\r\n"
+
+    char* data = const_cast<char*>(orig_data);
+    auto result = parse(data, length);
+
+    EXPECT_TRUE(result.has_value());
+    EXPECT_EQ(result->type(), RespTypeEnum::Array);
+    EXPECT_EQ(result->as_array().size(), 1);
+    EXPECT_EQ(result->as_array()[0].as_string(), "hello");
+}
+
+TEST(ParserTest, NumArray) {
+    const char* orig_data = "*1\r\n:1\r\n";
+    size_t length = 8; // Length of "*1\r\n:1\r\n"
+
+    char* data = const_cast<char*>(orig_data);
+    auto result = parse(data, length);
+
+    EXPECT_TRUE(result.has_value());
+    EXPECT_EQ(result->type(), RespTypeEnum::Array);
+    EXPECT_EQ(result->as_array().size(), 1);
+    EXPECT_EQ(result->as_array()[0].as_integer(), 1);
+}
+
+TEST(ParserTest, TwoNumArray) {
+    const char* orig_data = "*3\r\n:1\r\n:23\r\n:45\r\n";
+    size_t length = 18; // Length of "*2\r\n:1\r\n:23\r\n:45\r\n"
+
+    char* data = const_cast<char*>(orig_data);
+    auto result = parse(data, length);
+
+    EXPECT_TRUE(result.has_value());
+    EXPECT_EQ(result->type(), RespTypeEnum::Array);
+    EXPECT_EQ(result->as_array().size(), 3);
+    EXPECT_EQ(result->as_array()[0].as_integer(), 1);
+    EXPECT_EQ(result->as_array()[2].as_integer(), 45);
+}
+
 } // namespace Smriti

@@ -45,6 +45,8 @@ std::optional<RespValue> parse_integer(char*& data, size_t length) {
 
     int64_t value = *value_opt;
 
+    data += 2;  // Account for \r\n
+
     return RespValue::integer(value);
 }
 
@@ -102,9 +104,16 @@ std::optional<RespValue> parse_array(char*& data, size_t length) {
     for (int64_t i = 0; i < array_length; ++i) {
         char* start = data;
         auto element = parse(data, length);
+        if (!element) {
+            std::cerr << "Failed to parse array element at index " << *data << "\n";
+            return std::nullopt; // Failed to parse an element
+        }
         int parsed_length = data - start;
         length -= parsed_length;
-        if (length < 0) return std::nullopt; // Not enough data left
+        if (length < 0) {
+            std::cerr << "Not enough data left for array element parsing.\n";
+            return std::nullopt; // Not enough data left
+        }
 
         if (!element) return std::nullopt;
         temp_array.push_back(std::move(*element));
