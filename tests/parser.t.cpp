@@ -210,4 +210,20 @@ TEST(ParserTest, TwoNumArray) {
     EXPECT_EQ(result->as_array()[2].as_integer(), 45);
 }
 
+TEST(ParserTest, MultiElementArray) {
+    const char* orig_data = "*4\r\n+HELLO\r\n:23\r\n-Err\r\n$4\r\nBEEF\r\n";
+    size_t length = 33; // Length of "*4\r\n+HELLO\r\n:23\r\n-Err\r\n$4\r\nBEEF\r\n"
+
+    char* data = const_cast<char*>(orig_data);
+    auto result = parse(data, length);
+
+    EXPECT_TRUE(result.has_value());
+    EXPECT_EQ(result->type(), RespTypeEnum::Array);
+    EXPECT_EQ(result->as_array().size(), 4);
+    EXPECT_EQ(result->as_array()[0].as_string(), "HELLO");
+    EXPECT_EQ(result->as_array()[1].as_integer(), 23);
+    EXPECT_EQ(result->as_array()[2].as_string(), "Err");
+    EXPECT_EQ(result->as_array()[3].as_string(), "BEEF");
+}
+
 } // namespace Smriti
