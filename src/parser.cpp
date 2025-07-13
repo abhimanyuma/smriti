@@ -9,6 +9,9 @@
 
 namespace Smriti {
 
+// The ones below are private functions
+namespace {
+
 std::optional<std::string_view> read_line(char*& data, size_t length) {
     const char* start = data;
     const char* end = data + length;
@@ -120,6 +123,8 @@ std::optional<RespValue> parse_array(char*& data, size_t length) {
     }
 
     return RespValue::array(std::move(temp_array));
+}
+
 }
 
 std::optional<RespValue> parse(char*& data, size_t length) {
