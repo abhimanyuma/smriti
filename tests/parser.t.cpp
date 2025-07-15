@@ -7,16 +7,14 @@ namespace Smriti {
 
 TEST(ParserTest, UnimplementedType) {
     std::string data{"%0\r\n"};
-    auto parser = Parser{std::move(data)};
-    auto result = parser.parse();
+    auto result = Parser{data}.parse();
 
     EXPECT_FALSE(result.has_value());
 }
 
 TEST(ParserTest, SimpleString) {
     std::string data{"+OK\r\n"};
-    auto parser = Parser{std::move(data)};
-    auto result = parser.parse();
+    auto result = Parser{data}.parse();
 
     EXPECT_TRUE(result.has_value());
     EXPECT_EQ(result->type(), RespTypeEnum::SimpleString);
@@ -27,8 +25,7 @@ TEST(ParserTest, SimpleString) {
 TEST(ParserTest, ErrorString) {
     std::string data{"-ERR We have no value here\r\n"};
 
-    auto parser = Parser{std::move(data)};
-    auto result = parser.parse();
+    auto result = Parser{data}.parse();
 
     EXPECT_TRUE(result.has_value());
     EXPECT_EQ(result->type(), RespTypeEnum::Error);
@@ -37,8 +34,7 @@ TEST(ParserTest, ErrorString) {
 
 TEST(ParserTest, PostiveInteger) {
     std::string data{":+34\r\n"};
-    auto parser = Parser{std::move(data)};
-    auto result = parser.parse();
+    auto result = Parser{data}.parse();
 
     EXPECT_TRUE(result.has_value());
     EXPECT_EQ(result->type(), RespTypeEnum::Integer);
@@ -49,8 +45,7 @@ TEST(ParserTest, PostiveInteger) {
 
 TEST(ParserTest, NegativeInteger) {
     std::string data{":-34\r\n"};
-    auto parser = Parser{std::move(data)};
-    auto result = parser.parse();
+    auto result = Parser{data}.parse();
 
     EXPECT_TRUE(result.has_value());
     EXPECT_EQ(result->type(), RespTypeEnum::Integer);
@@ -59,8 +54,7 @@ TEST(ParserTest, NegativeInteger) {
 
 TEST(ParserTest, ZeroInteger) {
     std::string data{":0\r\n"};
-    auto parser = Parser{std::move(data)};
-    auto result = parser.parse();
+    auto result = Parser{data}.parse();
 
     EXPECT_TRUE(result.has_value());
     EXPECT_EQ(result->type(), RespTypeEnum::Integer);
@@ -69,8 +63,7 @@ TEST(ParserTest, ZeroInteger) {
 
 TEST(ParserTest, ImplicitPositiveInteger) {
     std::string data{":34\r\n"};
-    auto parser = Parser{std::move(data)};
-    auto result = parser.parse();
+    auto result = Parser{data}.parse();
 
     EXPECT_TRUE(result.has_value());
     EXPECT_EQ(result->type(), RespTypeEnum::Integer);
@@ -79,8 +72,7 @@ TEST(ParserTest, ImplicitPositiveInteger) {
 
 TEST(ParserTest, ZeroBulkString) {
     std::string data{"$0\r\n\r\n"};
-    auto parser = Parser{std::move(data)};
-    auto result = parser.parse();
+    auto result = Parser{data}.parse();
 
     EXPECT_TRUE(result.has_value());
     EXPECT_EQ(result->type(), RespTypeEnum::BulkString);
@@ -90,8 +82,7 @@ TEST(ParserTest, ZeroBulkString) {
 
 TEST(ParserTest, NullBulkString) {
     std::string data{"$-1\r\n"};
-    auto parser = Parser{std::move(data)};
-    auto result = parser.parse();
+    auto result = Parser{data}.parse();
 
     EXPECT_TRUE(result.has_value());
     EXPECT_EQ(result->type(), RespTypeEnum::Null);
@@ -99,8 +90,7 @@ TEST(ParserTest, NullBulkString) {
 
 TEST(ParserTest, CorrectString) {
     std::string data{"$20\r\nabcdefghijklmnopqrst\r\n"};
-    auto parser = Parser{std::move(data)};
-    auto result = parser.parse();
+    auto result = Parser{data}.parse();
 
     EXPECT_TRUE(result.has_value());
     EXPECT_EQ(result->type(), RespTypeEnum::BulkString);
@@ -111,8 +101,7 @@ TEST(ParserTest, CorrectString) {
 
 TEST(ParserTest, NullArray) {
     std::string data{"*-1\r\n"};
-    auto parser = Parser{std::move(data)};
-    auto result = parser.parse();
+    auto result = Parser{data}.parse();
 
     // Expecting a null array
     EXPECT_TRUE(result.has_value());
@@ -121,8 +110,7 @@ TEST(ParserTest, NullArray) {
 
 TEST(ParserTest, SingleElementArray) {
     std::string data{"*1\r\n$5\r\nhello\r\n"};
-    auto parser = Parser{std::move(data)};
-    auto result = parser.parse();
+    auto result = Parser{data}.parse();
 
     EXPECT_TRUE(result.has_value());
     EXPECT_EQ(result->type(), RespTypeEnum::Array);
@@ -132,8 +120,7 @@ TEST(ParserTest, SingleElementArray) {
 
 TEST(ParserTest, NumArray) {
     std::string data{"*1\r\n:1\r\n"};
-    auto parser = Parser{std::move(data)};
-    auto result = parser.parse();
+    auto result = Parser{data}.parse();
 
     EXPECT_TRUE(result.has_value());
     EXPECT_EQ(result->type(), RespTypeEnum::Array);
@@ -143,8 +130,7 @@ TEST(ParserTest, NumArray) {
 
 TEST(ParserTest, TwoNumArray) {
     std::string data{"*3\r\n:1\r\n:23\r\n:45\r\n"};
-    auto parser = Parser{std::move(data)};
-    auto result = parser.parse();
+    auto result = Parser{data}.parse();
 
     EXPECT_TRUE(result.has_value());
     EXPECT_EQ(result->type(), RespTypeEnum::Array);
@@ -155,8 +141,7 @@ TEST(ParserTest, TwoNumArray) {
 
 TEST(ParserTest, MultiElementArray) {
     std::string data{"*4\r\n+HELLO\r\n:23\r\n-Err\r\n$4\r\nBEEF\r\n"};
-    auto parser = Parser{std::move(data)};
-    auto result = parser.parse();
+    auto result = Parser{data}.parse();
 
     EXPECT_TRUE(result.has_value());
     EXPECT_EQ(result->type(), RespTypeEnum::Array);

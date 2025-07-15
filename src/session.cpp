@@ -21,7 +21,7 @@ void Session::read() {
         [this, self](boost::system::error_code ec, std::size_t length) {
             if (!ec) {
                 std::string data{d_data, length};
-                auto parser = Parser{std::move(data)};
+                auto parser = Parser{data};
                 auto response = parser.parse();
                 write();
             } else {
