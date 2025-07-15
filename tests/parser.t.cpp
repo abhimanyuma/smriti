@@ -7,14 +7,16 @@ namespace Smriti {
 
 TEST(ParserTest, UnimplementedType) {
     std::string data{"%0\r\n"};
-    auto result = Parser{std::move(data)}.parse();
+    auto parser = Parser{std::move(data)};
+    auto result = parser.parse();
 
     EXPECT_FALSE(result.has_value());
 }
 
 TEST(ParserTest, SimpleString) {
     std::string data{"+OK\r\n"};
-    auto result = Parser{std::move(data)}.parse();
+    auto parser = Parser{std::move(data)};
+    auto result = parser.parse();
 
     EXPECT_TRUE(result.has_value());
     EXPECT_EQ(result->type(), RespTypeEnum::SimpleString);
@@ -24,17 +26,19 @@ TEST(ParserTest, SimpleString) {
 
 TEST(ParserTest, ErrorString) {
     std::string data{"-ERR We have no value here\r\n"};
-    auto result = Parser{std::move(data)}.parse();
+
+    auto parser = Parser{std::move(data)};
+    auto result = parser.parse();
 
     EXPECT_TRUE(result.has_value());
     EXPECT_EQ(result->type(), RespTypeEnum::Error);
-    std::cout << "Result" << result->as_string();
     EXPECT_EQ(result->as_string(), "ERR We have no value here");
 }
 
 TEST(ParserTest, PostiveInteger) {
     std::string data{":+34\r\n"};
-    auto result = Parser{std::move(data)}.parse();
+    auto parser = Parser{std::move(data)};
+    auto result = parser.parse();
 
     EXPECT_TRUE(result.has_value());
     EXPECT_EQ(result->type(), RespTypeEnum::Integer);
@@ -45,7 +49,8 @@ TEST(ParserTest, PostiveInteger) {
 
 TEST(ParserTest, NegativeInteger) {
     std::string data{":-34\r\n"};
-    auto result = Parser{std::move(data)}.parse();
+    auto parser = Parser{std::move(data)};
+    auto result = parser.parse();
 
     EXPECT_TRUE(result.has_value());
     EXPECT_EQ(result->type(), RespTypeEnum::Integer);
@@ -54,7 +59,8 @@ TEST(ParserTest, NegativeInteger) {
 
 TEST(ParserTest, ZeroInteger) {
     std::string data{":0\r\n"};
-    auto result = Parser{std::move(data)}.parse();
+    auto parser = Parser{std::move(data)};
+    auto result = parser.parse();
 
     EXPECT_TRUE(result.has_value());
     EXPECT_EQ(result->type(), RespTypeEnum::Integer);
@@ -63,7 +69,8 @@ TEST(ParserTest, ZeroInteger) {
 
 TEST(ParserTest, ImplicitPositiveInteger) {
     std::string data{":34\r\n"};
-    auto result = Parser{std::move(data)}.parse();
+    auto parser = Parser{std::move(data)};
+    auto result = parser.parse();
 
     EXPECT_TRUE(result.has_value());
     EXPECT_EQ(result->type(), RespTypeEnum::Integer);

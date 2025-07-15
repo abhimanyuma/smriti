@@ -10,8 +10,8 @@
 namespace Smriti {
 
 std::optional<std::string_view> Parser::read_line() {
-    int start = d_current_index;
-    int end = d_data.length();
+    size_t start = d_current_index;
+    size_t end = d_data.length();
 
     // Look for \r\n sequence
     while (d_current_index < end - 1) {

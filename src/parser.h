@@ -20,7 +20,7 @@ public:
     ~Parser(){};
 private:
     size_t d_current_index;
-    std::string d_data;
+    const std::string d_data;
 
     std::optional<std::string_view> read_line();
     std::optional<RespValue> parse_simple_string();
