@@ -20,10 +20,9 @@ void Session::read() {
         boost::asio::buffer(d_data, max_length),
         [this, self](boost::system::error_code ec, std::size_t length) {
             if (!ec) {
-                // Process the data received
-                std::cout << "Received data: " << std::string(d_data, length) << "\n";
-                char* data = const_cast<char*>(d_data);
-                auto response = parse(data, length);
+                std::string data{d_data, length};
+                auto parser = Parser{std::move(data)};
+                auto response = parser.parse();
                 write();
             } else {
                 std::cerr << "Read error: " << ec.message() << "\n";

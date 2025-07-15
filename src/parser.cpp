@@ -9,51 +9,75 @@
 
 namespace Smriti {
 
-// The ones below are private functions
-namespace {
-
-std::optional<std::string_view> read_line(char*& data, size_t length) {
-    const char* start = data;
-    const char* end = data + length;
+std::optional<std::string_view> Parser::read_line() {
+    int start = d_current_index;
+    int end = d_data.length();
 
     // Look for \r\n sequence
-    while (data < end - 1) {
-        if (*data == '\r' && *(data + 1) == '\n') {
-            std::string_view result(start, data - start);
-            data += 2; // Skip \r\n
+    while (d_current_index < end - 1) {
+        if (d_data.at(d_current_index) == '\r' && d_data.at(d_current_index + 1) == '\n') {
+            std::string_view result(d_data.data() + start, d_current_index - start);
+            d_current_index += 2; // Skip \r\n
             return result;
         }
-        ++data;
+        d_current_index++;
     }
 
     return std::nullopt;
 }
 
-std::optional<RespValue> parse_simple_string(char*& data, size_t length) {
-    auto line = read_line(data, length);
+std::optional<RespValue> Parser::parse_simple_string() {
+    auto line = read_line();
     if (!line) return std::nullopt;
     return RespValue::simple_string(*line);
 }
 
-std::optional<RespValue> parse_error(char*& data, size_t length) {
-    auto line = read_line(data, length);
+std::optional<RespValue> Parser::parse_error() {
+    auto line = read_line();
     if (!line) return std::nullopt;
     return RespValue::error(*line);
 }
 
-std::optional<RespValue> parse_integer(char*& data, size_t length) {
+std::optional<int64_t> Parser::parse_bare_int() {
 
-    auto value_opt = Smriti::parse_int(data, length);
+    int64_t result = 0;
+    int sign = 1;
+    bool has_value = false;
+
+    if (d_data.at(d_current_index) == '-' || d_data.at(d_current_index) == '+') {
+
+        sign = (d_data.at(d_current_index) == '-') ? -1 : 1;
+        d_current_index++;
+    }
+    while (d_current_index < d_data.length() &&
+           d_data.at(d_current_index) >= '0' &&
+           d_data.at(d_current_index) <= '9') {
+        result = result * 10 + (d_data.at(d_current_index) - '0');
+        d_current_index++;
+        has_value = true;
+    }
+
+    if (!has_value) {
+        return std::nullopt; // No valid digits found
+    }
+    return result * sign;
+}
+
+std::optional<RespValue> Parser::parse_integer() {
+
+    auto value_opt = parse_bare_int();
     if (!value_opt) return std::nullopt;
 
     int64_t value = *value_opt;
 
-    data += 2;  // Account for \r\n
+    d_current_index += 2;  // Account for \r\n
 
     return RespValue::integer(value);
 }
 
-std::optional<RespValue> parse_bulk_string(char*& data, size_t length) {
+/*
+
+std::optional<RespValue> Parser::parse_bulk_string() {
 
     char* start = data;
 
@@ -126,25 +150,26 @@ std::optional<RespValue> parse_array(char*& data, size_t length) {
 }
 
 }
+*/
 
-std::optional<RespValue> parse(char*& data, size_t length) {
-    if (length == 0) {
+std::optional<RespValue> Parser::parse() {
+    if (d_data.length() == 0) {
         return std::nullopt;
     }
 
-    char type = *data++;
-    --length;
+    char type = d_data.at(d_current_index);
+    d_current_index++;
 
-    if (length == 0) {
+    if (d_current_index >= d_data.length()) {
         return std::nullopt;
     }
 
     switch (type) {
-        case '+': return parse_simple_string(data, length);
-        case '-': return parse_error(data, length);
-        case ':': return parse_integer(data, length);
-        case '$': return parse_bulk_string(data, length);
-        case '*': return parse_array(data, length);
+        case '+': return parse_simple_string();
+        case '-': return parse_error();
+        case ':': return parse_integer();
+        // case '$': return parse_bulk_string();
+        // case '*': return parse_array();
         default:
             return std::nullopt;
     }
