@@ -77,100 +77,94 @@ TEST(ParserTest, ImplicitPositiveInteger) {
     EXPECT_EQ(result->as_integer(), 34);
 }
 
-// TEST(ParserTest, ZeroBulkString) {
-//     std::string data{"$0\r\n\r\n"};
-//     auto result = Parser{std::move(data)}.parse();
+TEST(ParserTest, ZeroBulkString) {
+    std::string data{"$0\r\n\r\n"};
+    auto parser = Parser{std::move(data)};
+    auto result = parser.parse();
 
-//     EXPECT_TRUE(result.has_value());
-//     EXPECT_EQ(result->type(), RespTypeEnum::BulkString);
-//     EXPECT_EQ(result->as_string(), "");
-// }
-
-
-// TEST(ParserTest, NullBulkString) {
-//     std::string data{"$-1\r\n"};
-
-//     auto result = Parser{std::move(data)}.parse();
-//     EXPECT_TRUE(result.has_value());
-//     EXPECT_EQ(result->type(), RespTypeEnum::Null);
-// }
-
-// TEST(ParserTest, CorrectString) {
-//     std::string data{"$20\r\nabcdefghijklmnopqrst\r\n"};
-
-//     auto result = Parser{std::move(data)}.parse();
-//     EXPECT_TRUE(result.has_value());
-//     EXPECT_EQ(result->type(), RespTypeEnum::BulkString);
-
-//     std::string_view expected_string = "abcdefghijklmnopqrst";
-//     EXPECT_EQ(result->as_string(), expected_string);
-// }
-
-// TEST(ParserTest, NullArray) {
-//     const char* orig_data = "*-1\r\n";
-//     size_t length = 5; // Length of "*-1\r\n"
-
-//     char* data = const_cast<char*>(orig_data);
-//     auto result = parse(data, length);
-
-//     EXPECT_TRUE(result.has_value());
-//     EXPECT_EQ(result->type(), RespTypeEnum::Null);
-// }
+    EXPECT_TRUE(result.has_value());
+    EXPECT_EQ(result->type(), RespTypeEnum::BulkString);
+    EXPECT_EQ(result->as_string(), "");
+}
 
 
-// TEST(ParserTest, SingleElementArray) {
-//     const char* orig_data = "*1\r\n$5\r\nhello\r\n";
-//     size_t length = 20; // Length of "*1\r\n$5\r\nhello\r\n"
+TEST(ParserTest, NullBulkString) {
+    std::string data{"$-1\r\n"};
+    auto parser = Parser{std::move(data)};
+    auto result = parser.parse();
 
-//     char* data = const_cast<char*>(orig_data);
-//     auto result = parse(data, length);
+    EXPECT_TRUE(result.has_value());
+    EXPECT_EQ(result->type(), RespTypeEnum::Null);
+}
 
-//     EXPECT_TRUE(result.has_value());
-//     EXPECT_EQ(result->type(), RespTypeEnum::Array);
-//     EXPECT_EQ(result->as_array().size(), 1);
-//     EXPECT_EQ(result->as_array()[0].as_string(), "hello");
-// }
+TEST(ParserTest, CorrectString) {
+    std::string data{"$20\r\nabcdefghijklmnopqrst\r\n"};
+    auto parser = Parser{std::move(data)};
+    auto result = parser.parse();
 
-// TEST(ParserTest, NumArray) {
-//     const char* orig_data = "*1\r\n:1\r\n";
-//     size_t length = 8; // Length of "*1\r\n:1\r\n"
+    EXPECT_TRUE(result.has_value());
+    EXPECT_EQ(result->type(), RespTypeEnum::BulkString);
 
-//     char* data = const_cast<char*>(orig_data);
-//     auto result = parse(data, length);
+    std::string_view expected_string = "abcdefghijklmnopqrst";
+    EXPECT_EQ(result->as_string(), expected_string);
+}
 
-//     EXPECT_TRUE(result.has_value());
-//     EXPECT_EQ(result->type(), RespTypeEnum::Array);
-//     EXPECT_EQ(result->as_array().size(), 1);
-//     EXPECT_EQ(result->as_array()[0].as_integer(), 1);
-// }
+TEST(ParserTest, NullArray) {
+    std::string data{"*-1\r\n"};
+    auto parser = Parser{std::move(data)};
+    auto result = parser.parse();
 
-// TEST(ParserTest, TwoNumArray) {
-//     const char* orig_data = "*3\r\n:1\r\n:23\r\n:45\r\n";
-//     size_t length = 18; // Length of "*2\r\n:1\r\n:23\r\n:45\r\n"
+    // Expecting a null array
+    EXPECT_TRUE(result.has_value());
+    EXPECT_EQ(result->type(), RespTypeEnum::Null);
+}
 
-//     char* data = const_cast<char*>(orig_data);
-//     auto result = parse(data, length);
+TEST(ParserTest, SingleElementArray) {
+    std::string data{"*1\r\n$5\r\nhello\r\n"};
+    auto parser = Parser{std::move(data)};
+    auto result = parser.parse();
 
-//     EXPECT_TRUE(result.has_value());
-//     EXPECT_EQ(result->type(), RespTypeEnum::Array);
-//     EXPECT_EQ(result->as_array().size(), 3);
-//     EXPECT_EQ(result->as_array()[0].as_integer(), 1);
-//     EXPECT_EQ(result->as_array()[2].as_integer(), 45);
-// }
+    EXPECT_TRUE(result.has_value());
+    EXPECT_EQ(result->type(), RespTypeEnum::Array);
+    EXPECT_EQ(result->as_array().size(), 1);
+    EXPECT_EQ(result->as_array()[0].as_string(), "hello");
+}
 
-// TEST(ParserTest, MultiElementArray) {
-//     const char* orig_data = "*4\r\n+HELLO\r\n:23\r\n-Err\r\n$4\r\nBEEF\r\n";
+TEST(ParserTest, NumArray) {
+    std::string data{"*1\r\n:1\r\n"};
+    auto parser = Parser{std::move(data)};
+    auto result = parser.parse();
 
-//     char* data = const_cast<char*>(orig_data);
-//     auto result = parse(data, length);
+    EXPECT_TRUE(result.has_value());
+    EXPECT_EQ(result->type(), RespTypeEnum::Array);
+    EXPECT_EQ(result->as_array().size(), 1);
+    EXPECT_EQ(result->as_array()[0].as_integer(), 1);
+}
 
-//     EXPECT_TRUE(result.has_value());
-//     EXPECT_EQ(result->type(), RespTypeEnum::Array);
-//     EXPECT_EQ(result->as_array().size(), 4);
-//     EXPECT_EQ(result->as_array()[0].as_string(), "HELLO");
-//     EXPECT_EQ(result->as_array()[1].as_integer(), 23);
-//     EXPECT_EQ(result->as_array()[2].as_string(), "Err");
-//     EXPECT_EQ(result->as_array()[3].as_string(), "BEEF");
-// }
+TEST(ParserTest, TwoNumArray) {
+    std::string data{"*3\r\n:1\r\n:23\r\n:45\r\n"};
+    auto parser = Parser{std::move(data)};
+    auto result = parser.parse();
+
+    EXPECT_TRUE(result.has_value());
+    EXPECT_EQ(result->type(), RespTypeEnum::Array);
+    EXPECT_EQ(result->as_array().size(), 3);
+    EXPECT_EQ(result->as_array()[0].as_integer(), 1);
+    EXPECT_EQ(result->as_array()[2].as_integer(), 45);
+}
+
+TEST(ParserTest, MultiElementArray) {
+    std::string data{"*4\r\n+HELLO\r\n:23\r\n-Err\r\n$4\r\nBEEF\r\n"};
+    auto parser = Parser{std::move(data)};
+    auto result = parser.parse();
+
+    EXPECT_TRUE(result.has_value());
+    EXPECT_EQ(result->type(), RespTypeEnum::Array);
+    EXPECT_EQ(result->as_array().size(), 4);
+    EXPECT_EQ(result->as_array()[0].as_string(), "HELLO");
+    EXPECT_EQ(result->as_array()[1].as_integer(), 23);
+    EXPECT_EQ(result->as_array()[2].as_string(), "Err");
+    EXPECT_EQ(result->as_array()[3].as_string(), "BEEF");
+}
 
 } // namespace Smriti

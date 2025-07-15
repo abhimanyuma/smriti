@@ -75,71 +75,65 @@ std::optional<RespValue> Parser::parse_integer() {
     return RespValue::integer(value);
 }
 
-/*
-
 std::optional<RespValue> Parser::parse_bulk_string() {
 
-    char* start = data;
+    size_t start = d_current_index;
 
-    auto optional_line_length = parse_int(data, length);
+    auto optional_line_length = parse_bare_int();
+
     if (!optional_line_length) return std::nullopt;
-
     int64_t line_length = *optional_line_length;
 
-    data += 2; // Skip the \r\n after the length
+    d_current_index += 2; // Skip the \r\n after the length
 
     // RESP2 uses -1 to indicate a null bulk string
     if (line_length == -1) {
         return RespValue::null();
     }
 
-    int number_length = data - start;
-    if (number_length + line_length + 2 > length) {
-        return std::nullopt; // Not enough data for the bulk string
+    if (d_current_index + line_length > d_data.length()) {
+        std::cerr << "Not enough data for bulk string parsing.\n";
+        return std::nullopt; // Not enough data left
     }
 
-    std::string_view str(data, data + line_length);
+    std::string_view str(d_data.data() + d_current_index, line_length);
 
-    data = data + line_length + 2;
+    d_current_index += line_length + 2;
 
     return RespValue::bulk_string(str);
 }
 
-std::optional<RespValue> parse_array(char*& data, size_t length) {
+std::optional<RespValue> Parser::parse_array() {
 
-    char* start = data;
+    size_t start = d_current_index;
 
-    auto optional_array_length = parse_int(data, length);
+    auto optional_array_length = parse_bare_int();
     if (!optional_array_length) return std::nullopt;
 
     int64_t array_length = *optional_array_length;
-    int number_length = data - start;
 
-    data += 2; // Skip the \r\n after the length
+    d_current_index += 2; // Skip the \r\n after the length
+
     if (array_length == -1) {
         return RespValue::null();
     }
-    if (length < 0) return std::nullopt;
-
-    if (number_length + 2 > length) {
-        return std::nullopt; // Not enough data for the bulk string
-    }
+    if (array_length < 0) return std::nullopt;
 
     std::vector<RespValue> temp_array;
     temp_array.reserve(array_length);
 
     for (int64_t i = 0; i < array_length; ++i) {
-        char* start = data;
-        auto element = parse(data, length);
-        if (!element) {
-            std::cerr << "Failed to parse array element at index " << *data << "\n";
-            return std::nullopt; // Failed to parse an element
+
+        if (d_current_index >= d_data.length()) {
+            std::cerr << "Reached end of data while parsing array element.\n";
+            return std::nullopt; // Prevent out-of-bounds access
         }
-        int parsed_length = data - start;
-        length -= parsed_length;
-        if (length < 0) {
-            std::cerr << "Not enough data left for array element parsing.\n";
-            return std::nullopt; // Not enough data left
+
+        size_t start = d_current_index;
+        auto element = parse();
+        if (!element) {
+            std::cerr << "Failed to parse array element at index " << d_current_index << "\n";
+            return std::nullopt; // Failed to parse an element
         }
 
         if (!element) return std::nullopt;
@@ -148,9 +142,6 @@ std::optional<RespValue> parse_array(char*& data, size_t length) {
 
     return RespValue::array(std::move(temp_array));
 }
-
-}
-*/
 
 std::optional<RespValue> Parser::parse() {
     if (d_data.length() == 0) {
@@ -168,8 +159,8 @@ std::optional<RespValue> Parser::parse() {
         case '+': return parse_simple_string();
         case '-': return parse_error();
         case ':': return parse_integer();
-        // case '$': return parse_bulk_string();
-        // case '*': return parse_array();
+        case '$': return parse_bulk_string();
+        case '*': return parse_array();
         default:
             return std::nullopt;
     }

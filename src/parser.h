@@ -26,6 +26,8 @@ private:
     std::optional<RespValue> parse_simple_string();
     std::optional<RespValue> parse_error();
     std::optional<RespValue> parse_integer();
+    std::optional<RespValue> parse_bulk_string();
+    std::optional<RespValue> parse_array();
 
     std::optional<int64_t> parse_bare_int();
 
