@@ -2,7 +2,7 @@
 
 I am solving
 ["Build Your Own Redis" Challenge](https://codecrafters.io/challenges/redis)
-to learn some C++
+to learn some C++ for great fun and profit
 
 # Instructions
 
