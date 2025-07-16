@@ -20,6 +20,7 @@ add_library(
     src/session.cpp
     src/resp_value.cpp
     src/parser.cpp
+    src/processor.cpp
 )
 target_include_directories(smriti_lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
 

@@ -7,8 +7,11 @@
 namespace Smriti {
 
 class Processor {
+    private:
+    RespValue handle_ping(const std::vector<RespValue>& commands);
+    RespValue handle_echo(const std::vector<RespValue>& commands);
     public:
-    std::optional<RespValue> process(RespValue input_value);
+    RespValue process(const RespValue& input_value);
 
 };
 

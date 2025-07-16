@@ -5,6 +5,8 @@
 #include <iostream>
 #include <memory>
 
+#include "processor.h"
+
 using boost::asio::ip::tcp;
 
 namespace Smriti {
@@ -15,6 +17,8 @@ class Server {
     void accept();
 
   private:
+
+    Processor d_processor;
     tcp::acceptor d_acceptor;
     unsigned short d_port;
 };

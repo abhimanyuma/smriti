@@ -1,5 +1,7 @@
 #include "parser.h"
 
+#include <string>
+#include <vector>
 #include <string_view>
 #include <optional>
 #include <charconv>
@@ -28,13 +30,13 @@ std::optional<std::string_view> Parser::read_line() {
 std::optional<RespValue> Parser::parse_simple_string() {
     auto line = read_line();
     if (!line) return std::nullopt;
-    return RespValue::simple_string(*line);
+    return RespValue::simple_string(std::string{*line});
 }
 
 std::optional<RespValue> Parser::parse_error() {
     auto line = read_line();
     if (!line) return std::nullopt;
-    return RespValue::error(*line);
+    return RespValue::error(std::string{*line});
 }
 
 std::optional<int64_t> Parser::parse_bare_int() {
@@ -99,7 +101,7 @@ std::optional<RespValue> Parser::parse_bulk_string() {
 
     d_current_index += line_length + 2;
 
-    return RespValue::bulk_string(str);
+    return RespValue::bulk_string(std::string{str});
 }
 
 std::optional<RespValue> Parser::parse_array() {
