@@ -3,14 +3,21 @@
 
 #include "resp_value.h"
 #include <optional>
+#include <map>
 
 namespace Smriti {
 
 class Processor {
-    private:
+
+private:
     RespValue handle_ping(const std::vector<RespValue>& commands);
     RespValue handle_echo(const std::vector<RespValue>& commands);
-    public:
+    RespValue handle_set(const std::vector<RespValue>& commands);
+    RespValue handle_get(const std::vector<RespValue>& commands);
+
+    std::map<std::string, std::string> d_key_value_store;
+
+public:
     RespValue process(const RespValue& input_value);
 
 };
