@@ -16,6 +16,7 @@ private:
     RespValue handle_get(const std::vector<RespValue>& commands);
 
     std::map<std::string, std::string> d_key_value_store;
+    std::map<std::string, int64_t> d_expiry_store; // Expiry store
 
 public:
     RespValue process(const RespValue& input_value);

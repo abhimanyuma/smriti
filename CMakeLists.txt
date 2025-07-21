@@ -21,6 +21,7 @@ add_library(
     src/resp_value.cpp
     src/parser.cpp
     src/processor.cpp
+    src/utils_string.cpp
 )
 target_include_directories(smriti_lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
